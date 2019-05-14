@@ -1,5 +1,5 @@
 function main(){
-  const max = 500
+  const max = 50
   const lowerLegWidth = 14;
   const lowerLegInterRadiusLength = 113;
   const lowerLegHeight = 10;
@@ -10,6 +10,7 @@ function main(){
   const upperLegSlotWidth = 3; // this is an estimation. not measured
   const upperLengthSlotLength = 23.73;
   const upperLegHeight = 3.13;
+  const upperLegHeightAdjustRadius = lowerLegHeight/2;
   const legAngle = 120 // this is an estimation. not measured
 
   const pinDiameter = 2.48
@@ -25,8 +26,11 @@ function main(){
     )
   )
 
+
+  const upperHeightCutout = rotate([0,90,0],translate([-(upperLegHeightAdjustRadius+upperLegHeight),lowerLegWidth/2+upperLegHeightAdjustRadius,-max/2],linear_extrude({height: max}, hull(circle({r: lowerLegHeight/2, center: true}), translate([0,upperLegInterRadiusLength,0],circle({r: lowerLegHeight/2, center: true}))))))
   const upperLegPart = rotate([0,0,360-legAngle], 
-    linear_extrude({height:upperLegHeight},
+    difference(
+    linear_extrude({height:lowerLegHeight},
     difference(
       hull(
         circle({r:upperLegWidth/2, center: true}),
@@ -44,7 +48,7 @@ function main(){
           circle({r: upperLegSlotWidth/2, center: true})
         ) 
       )
-    ))
+    )), upperHeightCutout)
   )
 
   const pinHole = linear_extrude({height:max}, circle({r:pinHoleDiameter/2, center: true}))
