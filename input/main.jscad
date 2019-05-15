@@ -27,29 +27,46 @@ function main(){
   )
 
 
-  const upperHeightCutout = rotate([0,90,0],translate([-(upperLegHeightAdjustRadius+upperLegHeight),lowerLegWidth/2+upperLegHeightAdjustRadius,-max/2],linear_extrude({height: max}, hull(circle({r: lowerLegHeight/2, center: true}), translate([0,upperLegInterRadiusLength,0],circle({r: lowerLegHeight/2, center: true}))))))
-  const upperLegPart = rotate([0,0,360-legAngle], 
-    difference(
-    linear_extrude({height:lowerLegHeight},
-    difference(
-      hull(
-        circle({r:upperLegWidth/2, center: true}),
-        translate([0, upperLegInterRadiusLength],
-          circle({r:upperLegWidth/2, center: true})
-        )
-      ),
-      hull(
-        translate(
-          [0, upperLegInterRadiusLength],
-          circle({r: upperLegSlotWidth/2, center: true})
-        ),
-        translate(
-          [0, upperLegInterRadiusLength - upperLengthSlotLength],
-          circle({r: upperLegSlotWidth/2, center: true})
-        ) 
+  function makeUpperLegPart(){
+    const mainOutline = hull(
+      circle({r:upperLegWidth/2, center: true}),
+      translate([0, upperLegInterRadiusLength],
+        circle({r:upperLegWidth/2, center: true})
       )
-    )), upperHeightCutout)
-  )
+    )
+
+    const slotOutline = hull(
+      translate(
+        [0, upperLegInterRadiusLength],
+        circle({r: upperLegSlotWidth/2, center: true})
+      ),
+      translate(
+        [0, upperLegInterRadiusLength - upperLengthSlotLength],
+        circle({r: upperLegSlotWidth/2, center: true})
+      ) 
+    )
+
+    const totalOutline = difference(
+        mainOutline,
+        slotOutline
+    )
+
+    const coneThing = intersection(
+      cylinder({d1:upperLegWidth*2, d2:upperLegWidth, h: lowerLegHeight}),
+      linear_extrude({height: max},totalOutline)
+     )
+
+    const upperLegPart = rotate([0,0,360-legAngle], 
+      union(
+        linear_extrude({height:upperLegHeight}, totalOutline),
+        coneThing
+      )
+    )
+    return upperLegPart
+  }
+
+  const upperLegPart = makeUpperLegPart()
+
 
   const pinHole = linear_extrude({height:max}, circle({r:pinHoleDiameter/2, center: true}))
 
